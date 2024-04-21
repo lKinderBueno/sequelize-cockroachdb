@@ -286,6 +286,7 @@ Model.findOrCreate = async function findOrCreate(options) {
 };
 
 
+var __defProp = Object.defineProperty;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;

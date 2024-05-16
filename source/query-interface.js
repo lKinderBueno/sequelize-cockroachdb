@@ -38,12 +38,15 @@ QueryInterface.prototype.select = async function (model, tableName, optionsArg) 
 QueryInterface.prototype.bulkInsert = async function (tableName, records, options, attributes) {
   options = __spreadValues({}, options);
 
-
-  const modelColumnToCheck = Object.values(attributes).filter(x=>x.primaryKey == true || (x.defaultValue === undefined && x.allowNull === false)).map(x=>x.fieldName)
-  const columnToUpdate = Object.keys(records[0])
-  const canUpsert = !!modelColumnToCheck.find(x=>!columnToUpdate.includes(x))
-  options.type = canUpsert ? QueryTypes.UPSERT : QueryTypes.INSERT;
+  const modelColumnToCheck = Object.values(attributes).filter(x => {
+    if (x.fieldName == "createdAt" || x.fieldName == "updatedAt" || x.fieldName == "deletedAt") return false
+    return x.primaryKey == true || (x.defaultValue === undefined && x.allowNull === false)
+  }).map(x => x.fieldName)
   
+  const columnToUpdate = Object.keys(records[0])
+  const canUpsert = !modelColumnToCheck.find(x => !columnToUpdate.includes(x))
+  options.type = canUpsert ? QueryTypes.UPSERT : QueryTypes.INSERT;
+
   /*
   if (options.ignoreDuplicates)
     options.type = QueryTypes.INSERT;

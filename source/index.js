@@ -56,6 +56,7 @@ if (semver.satisfies(sequelizeVersion, '5.x')) {
 }
 
 require('./query-interface.js')
+require('./query-generator.js')
 
 //// [2] Disable `EXCEPTION` support
 

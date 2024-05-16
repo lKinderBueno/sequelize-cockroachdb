@@ -30,7 +30,7 @@ const {
   Model
 } = require('sequelize');
 const QueryGenerator = require('sequelize/lib/dialects/postgres/query-generator');
-require('./query-interface.js')
+
 
 // Ensure Sequelize version compatibility.
 const version_helper = require('./version_helper.js')
@@ -54,6 +54,8 @@ if (semver.satisfies(sequelizeVersion, '5.x')) {
 } else {
   require('./patches-v6');
 }
+
+require('./query-interface.js')
 
 //// [2] Disable `EXCEPTION` support
 

@@ -28,9 +28,7 @@ const QueryTypes = require("sequelize/lib/query-types");
 
 QueryInterface.prototype.select = async function (model, tableName, optionsArg) {
   const options = __spreadProps(__spreadValues({}, optionsArg), { type: QueryTypes.SELECT, model });
-  let _q = this.queryGenerator.selectQuery(tableName, options, model)
-  if(optionsArg.compromiseConsistency === true) _q = _q.replace(";", " AS OF SYSTEM TIME follower_read_timestamp();")
-  return await this.sequelize.query(_q, options);
+  return await this.sequelize.query(this.queryGenerator.selectQuery(tableName, options, model), options);
 }
 
 

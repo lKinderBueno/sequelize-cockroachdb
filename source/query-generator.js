@@ -261,7 +261,7 @@ QueryGenerator.prototype.selectQuery = function selectQuery(tableName, options, 
   }
 
   if (options.compromiseConsistency === true)
-    mainQueryItems.push("AS OF SYSTEM TIME follower_read_timestamp()");
+    mainQueryItems.push(" AS OF SYSTEM TIME follower_read_timestamp() ");
 
   if (Object.prototype.hasOwnProperty.call(options, "where") && !options.groupedLimit) {
     options.where = this.getWhereConditions(options.where, mainTable.as || tableName, model, options);

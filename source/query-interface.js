@@ -23,7 +23,7 @@ var __spreadValues = (a, b) => {
   return a;
 };
 
-const { QueryInterface} = require('sequelize/lib/dialects/abstract/query-interface');
+const { QueryInterface } = require('sequelize/lib/dialects/abstract/query-interface');
 const QueryTypes = require("sequelize/lib/query-types");
 
 QueryInterface.prototype.select = async function (model, tableName, optionsArg) {
@@ -40,10 +40,34 @@ QueryInterface.prototype.bulkInsert = async function (tableName, records, option
     if (x.fieldName == "createdAt" || x.fieldName == "updatedAt" || x.fieldName == "deletedAt") return false
     return x.primaryKey == true || (x.defaultValue === undefined && x.allowNull === false)
   }).map(x => x.fieldName)
-  
+
   const columnToUpdate = Object.keys(records[0])
   const canUpsert = !modelColumnToCheck.find(x => !columnToUpdate.includes(x))
-  options.type = canUpsert ? QueryTypes.UPSERT : QueryTypes.INSERT;
+
+  if (canUpsert)
+    options.type = QueryTypes.UPSERT
+  else {
+    options.type = QueryTypes.INSERT;
+
+    if (options.ignoreDuplicates !== true && !!options.updateOnDuplicate) {
+      const nullColumns = Object.values(attributes).filter(x => {
+        if (x.fieldName == "createdAt" || x.fieldName == "updatedAt" || x.fieldName == "deletedAt") return false
+        return x.primaryKey !== true && x.allowNull === false
+      }).filter(x => !columnToUpdate.includes(x.fieldName))
+
+      nullColumns.forEach(c => {
+        let value = ""
+        if (c.type == "INTEGER")
+          value = 0
+        else if (c.type == "JSON")
+          value = []
+
+        records.forEach(item => {
+          item[c.fieldName] = value
+        })
+      })
+    }
+  }
 
   /*
   if (options.ignoreDuplicates)

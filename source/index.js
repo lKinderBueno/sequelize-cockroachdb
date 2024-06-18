@@ -328,7 +328,7 @@ Model.bulkCreate = async function bulkCreate(records, options = {}) {
       this._validateIncludedElements(options);
     }
   }
-  const instances = records.map((values) => this.build(values, { isNewRecord: true, include: options.include }));
+  //const instances = records.map((values) => this.build(values, { isNewRecord: true, include: options.include }));
   const recursiveBulkCreate = async (instances2, options2) => {
     options2 = __spreadValues({
       validate: false,
@@ -379,6 +379,7 @@ Model.bulkCreate = async function bulkCreate(records, options = {}) {
         throw new sequelizeErrors.AggregateError(errors);
       }
     }
+    
     if (options2.individualHooks) {
       await Promise.all(instances2.map(async (instance) => {
         const individualOptions = __spreadProps(__spreadValues({}, options2), {
@@ -418,7 +419,7 @@ Model.bulkCreate = async function bulkCreate(records, options = {}) {
         }));
       }
       records = instances2.map((instance) => {
-        const values = instance.dataValues;
+        const values = instance;
         if (createdAtAttr && !values[createdAtAttr]) {
           values[createdAtAttr] = now;
           if (!options2.fields.includes(createdAtAttr)) {
@@ -477,7 +478,7 @@ Model.bulkCreate = async function bulkCreate(records, options = {}) {
             if (Object.prototype.hasOwnProperty.call(result, key)) {
               const record = result[key];
               const attr = _.find(model.rawAttributes, (attribute) => attribute.fieldName === key || attribute.field === key);
-              instance.dataValues[attr && attr.fieldName || key] = record;
+              instance[attr && attr.fieldName || key] = record;
             }
           }
         });
@@ -539,23 +540,25 @@ Model.bulkCreate = async function bulkCreate(records, options = {}) {
         }
       }));
     }
+    /*
     instances2.forEach((instance) => {
       for (const attr in model.rawAttributes) {
-        if (model.rawAttributes[attr].field && instance.dataValues[model.rawAttributes[attr].field] !== void 0 && model.rawAttributes[attr].field !== attr) {
-          instance.dataValues[attr] = instance.dataValues[model.rawAttributes[attr].field];
-          delete instance.dataValues[model.rawAttributes[attr].field];
+        if (model.rawAttributes[attr].field && instance[model.rawAttributes[attr].field] !== void 0 && model.rawAttributes[attr].field !== attr) {
+          instance[attr] = instance[model.rawAttributes[attr].field];
+          delete instance[model.rawAttributes[attr].field];
         }
-        instance._previousDataValues[attr] = instance.dataValues[attr];
+        instance._previousDataValues[attr] = instance[attr];
         instance.changed(attr, false);
       }
       instance.isNewRecord = false;
     });
+    */
     if (options2.hooks) {
       await model.runHooks("afterBulkCreate", instances2, options2);
     }
     return instances2;
   };
-  return await recursiveBulkCreate(instances, options);
+  return await recursiveBulkCreate(records, options);
 }
 
 
